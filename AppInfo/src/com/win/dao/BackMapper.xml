@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.win.dao.BackMapper">
+	<select id="loginBack" resultType="BackendUser">
+		select *,(select valueName
+		from data_dictionary where typeCode='USER_TYPE'and valueId=userType )
+		userTypeName from backend_user
+		where userCode =#{userCode} and
+		userPassword=#{userPassword}
+	</select>
+	<select id="list" resultType="AppInfo">
+		select *,(select
+		categoryName from app_category where id=categoryLevel1
+		)
+		categoryLevel1Name ,
+		(select categoryName from app_category where
+		id=categoryLevel2 )
+		categoryLevel2Name ,
+		(select categoryName from
+		app_category where id=categoryLevel3 )
+		categoryLevel3Name ,
+		(select
+		valueName from data_dictionary WHERE typeCode='APP_FLATFORM' and
+		valueId=flatformId) flatformName,
+		(select valueName from
+		data_dictionary where typeCode='APP_STATUS' and
+		valueId=status)
+		statusName,
+		(select versionNo from app_version where appId=app_info.id
+		and
+		id=app_info.versionId) versionNo
+		from app_info
+		where status=1
+		<if test="ai.status!=null">and status=#{ai.status} </if>
+		<if test="ai.flatformId!=null">and flatformId =#{ai.flatformId} </if>
+		<if test="ai.categoryLevel1!=null"> and categoryLevel1 =#{ai.categoryLevel1}</if>
+		<if test="ai.categoryLevel2!=null">and categoryLevel2=#{ai.categoryLevel2}</if>
+		<if test="ai.categoryLevel3!=null">and categoryLevel3=#{ai.categoryLevel3} </if>
+		<if test="ai.softwareName!=null"> and softwareName like concat('%',#{ai.softwareName},'%')
+		</if>
+		<if test="ai.id!=null"> and id=#{ai.id}</if>
+		order by id
+		limit #{begin},#{end};
+	</select>
+	<select id="selectAppCount" resultType="int">
+		select count(*) from app_info
+		where status=1
+		<if test="status!=null">and status=#{status} </if>
+		<if test="flatformId!=null">and flatformId =#{flatformId} </if>
+		<if test="categoryLevel1!=null"> and categoryLevel1 =#{categoryLevel1}</if>
+		<if test="categoryLevel2!=null">and categoryLevel2=#{categoryLevel2}</if>
+		<if test="categoryLevel3!=null">and categoryLevel3=#{categoryLevel3} </if>
+		<if test="softwareName!=null"> and softwareName like concat('%',#{softwareName},'%')
+		</if>
+
+	</select>
+	<select id="dataDictionary" resultType="DataDictionary">
+		select * from
+		data_dictionary
+		<where>
+			<if test="typeCode=='APP_FLATFORM'">
+				typeCode='APP_FLATFORM'
+			</if>
+			<if test="typeCode=='APP_STATUS'">
+				typeCode='APP_STATUS'
+			</if>
+		</where>
+	</select>
+	<select id="categoryLevelList" resultType="AppCategory">
+		select * from
+		app_category
+		<where>
+			<if test="id!=null">
+				parentId=#{id}
+			</if>
+			<if test="id==null">
+				parentId is null
+			</if>
+		</where>
+	</select>
+	<select id="selectVersion" resultType="AppVersion">
+		select * from app_version
+		where id=#{id};
+	</select>
+	<update id="checksave">
+		update app_info set
+		status=#{status},modifyBy=#{createdBy},modifyDate=Now()
+		where
+		id=#{id}
+	</update>
+</mapper>
