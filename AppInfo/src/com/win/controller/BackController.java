@@ -55,6 +55,7 @@ public class BackController {
 		}
 	}
 
+	// 查询全部数据和分页
 	@RequestMapping("/list")
 	public String list(AppInfo ai, @Param("pageIndex") @RequestParam(defaultValue = "1") Integer pageIndex, Model ml,
 			HttpServletRequest request) {
@@ -115,7 +116,7 @@ public class BackController {
 	public void checksave(AppInfo ai, HttpServletResponse response) throws IOException {
 		System.out.println("___" + ai);
 		bs.checksave(ai);
-		response.sendRedirect("list?createdBy="+userid);
+		response.sendRedirect("list?createdBy=" + userid);
 	}
 
 }
